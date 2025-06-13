@@ -3,7 +3,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-function readDirRecursive(dirPath: string): any[] {
+type FileNode = {
+  type: 'file';
+  name: string;
+  mtime: number;
+};
+type FolderNode = {
+  type: 'folder';
+  name: string;
+  children: Array<FileNode | FolderNode>;
+};
+
+function readDirRecursive(dirPath: string): Array<FileNode | FolderNode> {
   const stats = fs.statSync(dirPath);
   if (!stats.isDirectory()) return [];
   const children = fs.readdirSync(dirPath);
@@ -26,10 +37,11 @@ function readDirRecursive(dirPath: string): any[] {
   });
 }
 
-export async function GET(req: NextRequest, { params }: { params: { date: string } }) {
-  const { date } = params;
+// Removed all authentication and key logic. This endpoint is now public.
+export async function GET(req: NextRequest, { params }: { params: Promise<{ date: string }> }) {
+  const { date } = await params;
   const baseDir = path.join("C:/Users/walker dick/Documents/Coding/proscanfilebrowserfullstack/Files/Recordings", date);
-  let result: any = [];
+  let result: Array<FileNode | FolderNode> = [];
   try {
     result = readDirRecursive(baseDir);
   } catch (e) {

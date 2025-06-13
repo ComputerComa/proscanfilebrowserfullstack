@@ -3,7 +3,17 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-function readDirRecursive(dirPath: string): any {
+type FileNode = {
+  type: 'file';
+  name: string;
+};
+type FolderNode = {
+  type: 'folder';
+  name: string;
+  children: Array<FileNode | FolderNode>;
+};
+
+function readDirRecursive(dirPath: string): FileNode | FolderNode {
   const stats = fs.statSync(dirPath);
   if (stats.isDirectory()) {
     const children = fs.readdirSync(dirPath);
@@ -23,7 +33,7 @@ function readDirRecursive(dirPath: string): any {
 export async function GET() {
   // Set your absolute folder path here
   const baseDir = "C:/Users/walker dick/Documents/Coding/proscanfilebrowserfullstack/Files/Recordings";
-  let result: any = {};
+  let result: FileNode | FolderNode | null = null;
   try {
     result = readDirRecursive(baseDir);
   } catch (e) {

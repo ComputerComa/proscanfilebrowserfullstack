@@ -25,5 +25,6 @@ export async function GET(req: NextRequest) {
   if (url.searchParams.get('download') === '1') {
     headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
   }
-  return new NextResponse(fileStream as any, { headers });
+  // Use ReadableStream as the type for fileStream, cast to unknown first
+  return new NextResponse(fileStream as unknown as ReadableStream, { headers });
 }
